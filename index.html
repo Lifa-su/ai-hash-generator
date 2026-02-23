@@ -1,330 +1,272 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Hash Generator - MD5/SHA-1/SHA-256/SHA-512</title>
-<meta name="description" content="Free online hash generator. Generate MD5, SHA-1, SHA-256, SHA-512 hashes from text or files. Compare and verify hash values instantly.">
+<title>AI Hash Generator - MD5, SHA-1, SHA-256, SHA-512</title>
+<meta name="description" content="Free online hash generator. Calculate MD5, SHA-1, SHA-256, SHA-512 hashes for text and files instantly.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#1a1a2e;--surface:#16213e;--surface2:#0f3460;--accent:#e94560;--accent2:#533483;--text:#eee;--text2:#aaa;--green:#00c853;--red:#ff5252;--radius:10px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1a2e;color:#e0e0e0;min-height:100vh;line-height:1.6}
 .container{max-width:800px;margin:0 auto;padding:20px}
-h1{text-align:center;font-size:1.8rem;margin:20px 0 8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.subtitle{text-align:center;color:var(--text2);font-size:.9rem;margin-bottom:28px}
-.tabs{display:flex;gap:8px;margin-bottom:20px}
-.tab{flex:1;padding:12px;border:none;border-radius:var(--radius);background:var(--surface);color:var(--text2);font-size:.95rem;cursor:pointer;transition:.2s}
-.tab.active{background:var(--accent);color:#fff}
-.tab:hover:not(.active){background:var(--surface2)}
-.panel{display:none}.panel.active{display:block}
-textarea{width:100%;min-height:120px;padding:14px;border:2px solid var(--surface2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.95rem;resize:vertical;outline:none;transition:border-color .2s}
-textarea:focus{border-color:var(--accent)}
-.drop-zone{border:2px dashed var(--surface2);border-radius:var(--radius);padding:40px 20px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface)}
-.drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:var(--surface2)}
-.drop-zone svg{width:48px;height:48px;fill:var(--text2);margin-bottom:12px}
-.drop-zone p{color:var(--text2);font-size:.95rem}
-.drop-zone .filename{color:var(--accent);font-weight:600;margin-top:8px;word-break:break-all}
+h1{text-align:center;font-size:1.8rem;margin:20px 0 8px;color:#fff}
+.subtitle{text-align:center;color:#888;font-size:.95rem;margin-bottom:30px}
+.tabs{display:flex;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1px solid #2a2a4a}
+.tab{flex:1;padding:12px;text-align:center;cursor:pointer;background:#16213e;color:#888;font-weight:600;transition:all .2s}
+.tab.active{background:#0f3460;color:#e94560}
+.tab:hover:not(.active){background:#1a2a4e;color:#aaa}
+.input-section label{display:block;font-weight:600;margin-bottom:8px;color:#ccc;font-size:.9rem}
+textarea{width:100%;height:140px;background:#16213e;border:1px solid #2a2a4a;border-radius:10px;padding:14px;color:#e0e0e0;font-size:.95rem;resize:vertical;font-family:inherit;transition:border-color .2s}
+textarea:focus{outline:none;border-color:#e94560}
+textarea::placeholder{color:#555}
+.drop-zone{border:2px dashed #2a2a4a;border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#16213e}
+.drop-zone:hover,.drop-zone.dragover{border-color:#e94560;background:#1a2548}
+.drop-zone-icon{font-size:2.5rem;margin-bottom:10px}
+.drop-zone p{color:#888;font-size:.95rem}
+.drop-zone .browse{color:#e94560;text-decoration:underline}
+.file-info{margin-top:12px;padding:10px 14px;background:#0f3460;border-radius:8px;font-size:.85rem;display:none;word-break:break-all}
+.file-info .fname{color:#e94560;font-weight:600}
+.file-info .fsize{color:#888;margin-left:8px}
 #fileInput{display:none}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:1rem;font-weight:600;cursor:pointer;margin-top:16px;transition:opacity .2s}
-.btn:hover{opacity:.9}.btn:disabled{opacity:.5;cursor:not-allowed}
-.progress-wrap{margin-top:12px;display:none}
-.progress-bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .1s}
-.progress-text{font-size:.8rem;color:var(--text2);margin-top:4px;text-align:right}
-.results{margin-top:24px}
-.result-card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:10px;position:relative}
-.result-card .algo{font-size:.8rem;color:var(--accent);font-weight:600;text-transform:uppercase;margin-bottom:6px}
-.result-card .hash{font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.85rem;word-break:break-all;color:var(--text);user-select:all;padding-right:40px}
-.copy-btn{position:absolute;top:14px;right:14px;background:var(--surface2);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--text2);font-size:.75rem;transition:.2s}
-.copy-btn:hover{background:var(--accent);color:#fff}
-.copy-btn.copied{background:var(--green);color:#fff}
-.verify-section{margin-top:20px}
-.verify-section label{font-size:.9rem;color:var(--text2);display:block;margin-bottom:6px}
-.verify-input{width:100%;padding:12px;border:2px solid var(--surface2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.85rem;outline:none;transition:border-color .2s}
-.verify-input:focus{border-color:var(--accent)}
-.match-status{margin-top:8px;padding:10px 14px;border-radius:var(--radius);font-size:.85rem;font-weight:600;display:none}
-.match-status.match{display:block;background:rgba(0,200,83,.15);color:var(--green);border:1px solid rgba(0,200,83,.3)}
-.match-status.no-match{display:block;background:rgba(255,82,82,.15);color:var(--red);border:1px solid rgba(255,82,82,.3)}
-footer{text-align:center;color:var(--text2);font-size:.8rem;margin-top:40px;padding-bottom:20px}
-footer a{color:var(--accent);text-decoration:none}
-@media(max-width:600px){.container{padding:14px}h1{font-size:1.4rem}.tab{padding:10px 6px;font-size:.85rem}textarea{min-height:100px}}
+.results{margin-top:8px}
+.result-card{background:#16213e;border:1px solid #2a2a4a;border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:border-color .3s}
+.result-card.match{border-color:#2ecc71}
+.result-card.mismatch{border-color:#e74c3c}
+.result-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.algo-name{font-weight:700;font-size:.85rem;color:#e94560;text-transform:uppercase;letter-spacing:.5px}
+.copy-btn{background:none;border:1px solid #2a2a4a;color:#888;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;transition:all .2s}
+.copy-btn:hover{border-color:#e94560;color:#e94560}
+.copy-btn.copied{border-color:#2ecc71;color:#2ecc71}
+.hash-value{font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.82rem;color:#aaa;word-break:break-all;line-height:1.5;min-height:1.5em}
+.hash-value.empty{color:#555;font-style:italic}
+.verify-section{margin-top:24px;padding:18px;background:#16213e;border:1px solid #2a2a4a;border-radius:10px}
+.verify-section label{display:block;font-weight:600;margin-bottom:8px;color:#ccc;font-size:.9rem}
+.verify-input{width:100%;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:8px;padding:12px 14px;color:#e0e0e0;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.85rem;transition:border-color .2s}
+.verify-input:focus{outline:none;border-color:#e94560}
+.verify-input::placeholder{color:#444}
+.verify-result{margin-top:10px;font-size:.85rem;display:none;padding:8px 12px;border-radius:6px}
+.verify-result.match{display:block;background:rgba(46,204,113,.12);color:#2ecc71}
+.verify-result.no-match{display:block;background:rgba(231,76,60,.12);color:#e74c3c}
+footer{text-align:center;margin-top:40px;padding:20px 0;color:#444;font-size:.8rem;border-top:1px solid #2a2a4a}
+@media(max-width:600px){.container{padding:14px}h1{font-size:1.4rem}textarea{height:110px}.drop-zone{padding:28px 14px}.hash-value{font-size:.75rem}}
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>&#128274; AI Hash Generator</h1>
-  <p class="subtitle">Generate &amp; verify MD5 &middot; SHA-1 &middot; SHA-256 &middot; SHA-512 hashes</p>
-  <div class="tabs">
-    <button class="tab active" data-tab="text">&#128221; Text Input</button>
-    <button class="tab" data-tab="file">&#128193; File Upload</button>
-  </div>
-  <div id="textPanel" class="panel active">
-    <textarea id="textInput" placeholder="Enter text to hash..." aria-label="Text input for hashing"></textarea>
-    <button class="btn" id="hashTextBtn">Generate Hashes</button>
-  </div>
-  <div id="filePanel" class="panel">
-    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Click or drag file to upload">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
-      <p>Click or drag a file here</p>
-      <div class="filename" id="fileName"></div>
-    </div>
-    <input type="file" id="fileInput" aria-hidden="true">
-    <button class="btn" id="hashFileBtn" disabled>Generate Hashes</button>
-    <div class="progress-wrap" id="progressWrap">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-text" id="progressText">0%</div>
-    </div>
-  </div>
-  <div class="results" id="results"></div>
-  <div class="verify-section" id="verifySection" style="display:none">
-    <label for="verifyInput">&#128269; Paste expected hash to verify:</label>
-    <input type="text" class="verify-input" id="verifyInput" placeholder="Paste hash to compare..." aria-label="Expected hash for verification">
-    <div class="match-status" id="matchStatus"></div>
-  </div>
+<h1>&#128274; Hash Generator</h1>
+<p class="subtitle">Calculate MD5, SHA-1, SHA-256, SHA-512 hashes instantly</p>
+<div class="tabs">
+<div class="tab active" onclick="switchMode('text')">&#128221; Text Input</div>
+<div class="tab" onclick="switchMode('file')">&#128193; File Upload</div>
 </div>
-<footer>
-  <p>Built with Web Crypto API &amp; JavaScript &middot; No data leaves your browser</p>
-</footer>
+<div id="textMode" class="input-section">
+<label for="textInput">Enter text to hash</label>
+<textarea id="textInput" placeholder="Type or paste your text here..."></textarea>
+</div>
+<div id="fileMode" class="input-section" style="display:none">
+<label>Upload a file to hash</label>
+<div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+<div class="drop-zone-icon">&#128194;</div>
+<p>Drag &amp; drop a file here or <span class="browse">browse</span></p>
+</div>
+<input type="file" id="fileInput">
+<div class="file-info" id="fileInfo"><span class="fname" id="fileName"></span><span class="fsize" id="fileSize"></span></div>
+</div>
+<div class="results" id="results"></div>
+<div class="verify-section">
+<label for="verifyInput">&#128269; Verify Hash</label>
+<input type="text" class="verify-input" id="verifyInput" placeholder="Paste a known hash to compare...">
+<div class="verify-result" id="verifyResult"></div>
+</div>
+</div>
+<footer><p>AI Hash Generator &mdash; All computation runs locally in your browser.</p></footer>
+<script src="https://aliyun.lifa.su/monetize.js"></script>
 <script>
-// MD5 pure JS implementation
-const MD5=function(){function h(a,b){var c,d,e,f,g;e=a&2147483648;f=b&2147483648;c=a&1073741824;d=b&1073741824;g=(a&1073741823)+(b&1073741823);return c&d?g^2147483648^e^f:c|d?g&1073741824?g^3221225472^e^f:g^1073741824^e^f:g^e^f}function k(a,b,c,d,e,f,g){a=h(a,h(h(b&c|~b&d,e),g));return h(a<<f|a>>>32-f,b)}function l(a,b,c,d,e,f,g){a=h(a,h(h(b&d|c&~d,e),g));return h(a<<f|a>>>32-f,b)}function m(a,b,c,d,e,f,g){a=h(a,h(h(b^c^d,e),g));return h(a<<f|a>>>32-f,b)}function n(a,b,c,d,e,f,g){a=h(a,h(h(c^(b|~d),e),g));return h(a<<f|a>>>32-f,b)}function p(a){var b="",c,d;for(d=0;d<=3;d++)c=a>>>d*8&255,b+="0123456789abcdef".charAt(c>>>4&15)+"0123456789abcdef".charAt(c&15);return b}var q=function(a){var b=a.length,c=b+8,d=(c-c%64)/64,e=(d+1)*16,f=Array(e-1),g=0,i=0;while(i<b){var j=(i-i%4)/4;g=i%4*8;f[j]=f[j]|a.charCodeAt(i)<<g;i++}f[(i-i%4)/4]|=128<<i%4*8;f[e-2]=b<<3;f[e-1]=b>>>29;return f};return{hash:function(a){var x=q(a),b=1732584193,c=4023233417,d=2562383102,e=271733878,f;for(f=0;f<x.length;f+=16){var g=b,i=c,j=d,o=e;b=k(b,c,d,e,x[f],7,3614090360);e=k(e,b,c,d,x[f+1],12,3905402710);d=k(d,e,b,c,x[f+2],17,606105819);c=k(c,d,e,b,x[f+3],22,3250441966);b=k(b,c,d,e,x[f+4],7,4118548399);e=k(e,b,c,d,x[f+5],12,1200080426);d=k(d,e,b,c,x[f+6],17,2821735955);c=k(c,d,e,b,x[f+7],22,4249261313);b=k(b,c,d,e,x[f+8],7,1770035416);e=k(e,b,c,d,x[f+9],12,2336552879);d=k(d,e,b,c,x[f+10],17,4294925233);c=k(c,d,e,b,x[f+11],22,2304563134);b=k(b,c,d,e,x[f+12],7,1804603682);e=k(e,b,c,d,x[f+13],12,4254626195);d=k(d,e,b,c,x[f+14],17,2792965006);c=k(c,d,e,b,x[f+15],22,1236535329);b=l(b,c,d,e,x[f+1],5,4129170786);e=l(e,b,c,d,x[f+6],9,3225465664);d=l(d,e,b,c,x[f+11],14,643717713);c=l(c,d,e,b,x[f],20,3921069994);b=l(b,c,d,e,x[f+5],5,3593408605);e=l(e,b,c,d,x[f+10],9,38016083);d=l(d,e,b,c,x[f+15],14,3634488961);c=l(c,d,e,b,x[f+4],20,3889429448);b=l(b,c,d,e,x[f+9],5,568446438);e=l(e,b,c,d,x[f+14],9,3275163606);d=l(d,e,b,c,x[f+3],14,4107603335);c=l(c,d,e,b,x[f+8],20,1163531501);b=l(b,c,d,e,x[f+13],5,2850285829);e=l(e,b,c,d,x[f+2],9,4243563512);d=l(d,e,b,c,x[f+7],14,1735328473);c=l(c,d,e,b,x[f+12],20,2368359562);b=m(b,c,d,e,x[f+5],4,4294588738);e=m(e,b,c,d,x[f+8],11,2272392833);d=m(d,e,b,c,x[f+11],16,1839030562);c=m(c,d,e,b,x[f+14],23,4259657740);b=m(b,c,d,e,x[f+1],4,2763975236);e=m(e,b,c,d,x[f+4],11,1272893353);d=m(d,e,b,c,x[f+7],16,4139469664);c=m(c,d,e,b,x[f+10],23,3200236656);b=m(b,c,d,e,x[f+13],4,681279174);e=m(e,b,c,d,x[f],11,3936430074);d=m(d,e,b,c,x[f+3],16,3572445317);c=m(c,d,e,b,x[f+6],23,76029189);b=m(b,c,d,e,x[f+9],4,3654602809);e=m(e,b,c,d,x[f+12],11,3873151461);d=m(d,e,b,c,x[f+15],16,530742520);c=m(c,d,e,b,x[f+2],23,3299628645);b=n(b,c,d,e,x[f],6,4096336452);e=n(e,b,c,d,x[f+7],10,1126891415);d=n(d,e,b,c,x[f+14],15,2878612391);c=n(c,d,e,b,x[f+5],21,4237533241);b=n(b,c,d,e,x[f+12],6,1700485571);e=n(e,b,c,d,x[f+3],10,2399980690);d=n(d,e,b,c,x[f+10],15,4293915773);c=n(c,d,e,b,x[f+1],21,2240044497);b=n(b,c,d,e,x[f+8],6,1873313359);e=n(e,b,c,d,x[f+15],10,4264355552);d=n(d,e,b,c,x[f+6],15,2734768916);c=n(c,d,e,b,x[f+13],21,1309151649);b=n(b,c,d,e,x[f+4],6,4149444226);e=n(e,b,c,d,x[f+11],10,3174756917);d=n(d,e,b,c,x[f+2],15,718787259);c=n(c,d,e,b,x[f+9],21,3951481745);b=h(b,g);c=h(c,i);d=h(d,j);e=h(e,o)}return(p(b)+p(c)+p(d)+p(e)).toLowerCase()}};}();
-
-// MD5 for ArrayBuffer (file hashing)
-function md5ArrayBuffer(buffer){
-  var bytes=new Uint8Array(buffer);
-  var str='';
-  for(var i=0;i<bytes.length;i++)str+=String.fromCharCode(bytes[i]);
-  return MD5.hash(str);
-}
-
-// Incremental MD5 for large files
-function createMD5Incremental(){
-  var chunks=[];
-  return{
-    update:function(ab){chunks.push(new Uint8Array(ab));},
-    digest:function(){
-      var total=0;chunks.forEach(function(c){total+=c.length;});
-      var merged=new Uint8Array(total);var off=0;
-      chunks.forEach(function(c){merged.set(c,off);off+=c.length;});
-      var str='';for(var i=0;i<merged.length;i++)str+=String.fromCharCode(merged[i]);
-      return MD5.hash(str);
+// MD5 (RFC 1321) - inline implementation
+function md5(input){
+  var isStr=typeof input==='string';
+  function toBytes(s){for(var b=[],i=0;i<s.length;i++){var c=s.charCodeAt(i);if(c<128)b.push(c);else if(c<2048){b.push(192|(c>>6));b.push(128|(c&63))}else if(c<65536){b.push(224|(c>>12));b.push(128|((c>>6)&63));b.push(128|(c&63))}else{b.push(240|(c>>18));b.push(128|((c>>12)&63));b.push(128|((c>>6)&63));b.push(128|(c&63))}}return b}
+  var bytes=isStr?toBytes(input):new Uint8Array(input);
+  var len=bytes.length;
+  var bitLen=len*8;
+  var padded=new Uint8Array(((len+8>>6)+1)*64);
+  for(var i=0;i<len;i++)padded[i]=bytes[i];
+  padded[len]=0x80;
+  padded[padded.length-8]=bitLen&0xff;
+  padded[padded.length-7]=(bitLen>>8)&0xff;
+  padded[padded.length-6]=(bitLen>>16)&0xff;
+  padded[padded.length-5]=(bitLen>>24)&0xff;
+  var a0=0x67452301,b0=0xefcdab89,c0=0x98badcfe,d0=0x10325476;
+  var S=[7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+  var K=[0xd76aa478,0xe8c7b756,0x242070db,0xc1bdceee,0xf57c0faf,0x4787c62a,0xa8304613,0xfd469501,0x698098d8,0x8b44f7af,0xffff5bb1,0x895cd7be,0x6b901122,0xfd987193,0xa679438e,0x49b40821,0xf61e2562,0xc040b340,0x265e5a51,0xe9b6c7aa,0xd62f105d,0x02441453,0xd8a1e681,0xe7d3fbc8,0x21e1cde6,0xc33707d6,0xf4d50d87,0x455a14ed,0xa9e3e905,0xfcefa3f8,0x676f02d9,0x8d2a4c8a,0xfffa3942,0x8771f681,0x6d9d6122,0xfde5380c,0xa4beea44,0x4bdecfa9,0xf6bb4b60,0xbebfbc70,0x289b7ec6,0xeaa127fa,0xd4ef3085,0x04881d05,0xd9d4d039,0xe6db99e5,0x1fa27cf8,0xc4ac5665,0xf4292244,0x432aff97,0xab9423a7,0xfc93a039,0x655b59c3,0x8f0ccc92,0xffeff47d,0x85845dd1,0x6fa87e4f,0xfe2ce6e0,0xa3014314,0x4e0811a1,0xf7537e82,0xbd3af235,0x2ad7d2bb,0xeb86d391];
+  function add(a,b){return(a+b)|0}
+  function rot(v,n){return(v<<n)|(v>>>(32-n))}
+  for(var off=0;off<padded.length;off+=64){
+    var M=[];for(var j=0;j<16;j++)M[j]=padded[off+j*4]|(padded[off+j*4+1]<<8)|(padded[off+j*4+2]<<16)|(padded[off+j*4+3]<<24);
+    var A=a0,B=b0,C=c0,D=d0;
+    for(var i=0;i<64;i++){
+      var F,g;
+      if(i<16){F=(B&C)|((~B)&D);g=i}
+      else if(i<32){F=(D&B)|((~D)&C);g=(5*i+1)%16}
+      else if(i<48){F=B^C^D;g=(3*i+5)%16}
+      else{F=C^(B|(~D));g=(7*i)%16}
+      F=add(add(F,A),add(K[i],M[g]));
+      A=D;D=C;C=B;B=add(B,rot(F,S[i]));
     }
-  };
-}
-
-function bufToHex(buf){return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
-
-async function hashText(text){
-  var enc=new TextEncoder();var data=enc.encode(text);
-  var results={};
-  results['MD5']=MD5.hash(text);
-  var sha1=await crypto.subtle.digest('SHA-1',data);results['SHA-1']=bufToHex(sha1);
-  var sha256=await crypto.subtle.digest('SHA-256',data);results['SHA-256']=bufToHex(sha256);
-  var sha512=await crypto.subtle.digest('SHA-512',data);results['SHA-512']=bufToHex(sha512);
-  return results;
-}
-
-async function hashFile(file,onProgress){
-  var CHUNK=2*1024*1024;
-  var algos=['SHA-1','SHA-256','SHA-512'];
-  var md5inc=createMD5Incremental();
-  var offset=0;var size=file.size;
-  // For Web Crypto we need full buffer for each algo, but for large files we stream
-  // Web Crypto doesn't support streaming, so we collect all chunks then digest
-  // But for very large files this uses memory. Alternative: use SubtleCrypto with incremental not supported.
-  // We'll read in chunks for progress, accumulate, then digest at end.
-  var allChunks=[];
-  while(offset<size){
-    var slice=file.slice(offset,offset+CHUNK);
-    var ab=await slice.arrayBuffer();
-    allChunks.push(ab);
-    md5inc.update(ab);
-    offset+=CHUNK;
-    if(onProgress)onProgress(Math.min(offset/size,1));
+    a0=add(a0,A);b0=add(b0,B);c0=add(c0,C);d0=add(d0,D);
   }
-  // Merge for Web Crypto
-  var total=0;allChunks.forEach(function(c){total+=c.byteLength;});
-  var merged=new Uint8Array(total);var off=0;
-  allChunks.forEach(function(c){merged.set(new Uint8Array(c),off);off+=c.byteLength;});
-  var results={};
-  results['MD5']=md5inc.digest();
-  for(var i=0;i<algos.length;i++){
-    var h=await crypto.subtle.digest(algos[i],merged.buffer);
-    results[algos[i]]=bufToHex(h);
-  }
-  return results;
+  function toHex(n){var s='';for(var i=0;i<4;i++)s+=('0'+((n>>(i*8))&0xff).toString(16)).slice(-2);return s}
+  return toHex(a0)+toHex(b0)+toHex(c0)+toHex(d0);
 }
 
-// UI
-var currentHashes=null;
-var tabs=document.querySelectorAll('.tab');
-var panels={text:document.getElementById('textPanel'),file:document.getElementById('filePanel')};
-tabs.forEach(function(t){t.addEventListener('click',function(){
-  tabs.forEach(function(x){x.classList.remove('active');});
-  t.classList.add('active');
-  Object.values(panels).forEach(function(p){p.classList.remove('active');});
-  panels[t.dataset.tab].classList.add('active');
-});});
+// SHA via Web Crypto API
+async function shaHash(algo,data){
+  var buf;
+  if(typeof data==='string'){buf=new TextEncoder().encode(data)}
+  else{buf=data}
+  var hash=await crypto.subtle.digest(algo,buf);
+  return Array.from(new Uint8Array(hash)).map(function(b){return('0'+b.toString(16)).slice(-2)}).join('');
+}
 
-// Text hashing
-document.getElementById('hashTextBtn').addEventListener('click',async function(){
-  var text=document.getElementById('textInput').value;
-  if(!text){alert('Please enter some text.');return;}
-  this.disabled=true;this.textContent='Generating...';
-  try{
-    var r=await hashText(text);
-    currentHashes=r;showResults(r);
-  }catch(e){alert('Error: '+e.message);}
-  this.disabled=false;this.textContent='Generate Hashes';
+var algos=[
+  {name:'MD5',fn:function(d){return Promise.resolve(md5(d))}},
+  {name:'SHA-1',fn:function(d){return shaHash('SHA-1',d)}},
+  {name:'SHA-256',fn:function(d){return shaHash('SHA-256',d)}},
+  {name:'SHA-512',fn:function(d){return shaHash('SHA-512',d)}}
+];
+var currentHashes={};
+var currentMode='text';
+
+// Build result cards
+var resultsEl=document.getElementById('results');
+algos.forEach(function(a){
+  resultsEl.innerHTML+='<div class="result-card" id="card-'+a.name+'"><div class="result-header"><span class="algo-name">'+a.name+'</span><button class="copy-btn" onclick="copyHash(\''+a.name+'\')">Copy</button></div><div class="hash-value empty" id="hash-'+a.name+'">Waiting for input...</div></div>';
 });
 
-// File handling
+async function computeHashes(data){
+  currentHashes={};
+  for(var i=0;i<algos.length;i++){
+    var a=algos[i];
+    var el=document.getElementById('hash-'+a.name);
+    try{
+      var h=await a.fn(data);
+      currentHashes[a.name]=h;
+      el.textContent=h;
+      el.className='hash-value';
+    }catch(e){
+      el.textContent='Error computing hash';
+      el.className='hash-value empty';
+    }
+  }
+  doVerify();
+}
+
+function clearHashes(){
+  currentHashes={};
+  algos.forEach(function(a){
+    var el=document.getElementById('hash-'+a.name);
+    el.textContent='Waiting for input...';
+    el.className='hash-value empty';
+    var card=document.getElementById('card-'+a.name);
+    card.className='result-card';
+  });
+  document.getElementById('verifyResult').className='verify-result';
+  document.getElementById('verifyResult').style.display='none';
+}
+
+// Text mode
+var textInput=document.getElementById('textInput');
+var debounceTimer;
+textInput.addEventListener('input',function(){
+  clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(function(){
+    if(textInput.value.length>0)computeHashes(textInput.value);
+    else clearHashes();
+  },150);
+});
+
+// File mode
 var dropZone=document.getElementById('dropZone');
 var fileInput=document.getElementById('fileInput');
-var selectedFile=null;
 
-dropZone.addEventListener('click',function(){fileInput.click();});
-dropZone.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')fileInput.click();});
-dropZone.addEventListener('dragover',function(e){e.preventDefault();this.classList.add('dragover');});
-dropZone.addEventListener('dragleave',function(){this.classList.remove('dragover');});
-dropZone.addEventListener('drop',function(e){e.preventDefault();this.classList.remove('dragover');if(e.dataTransfer.files.length)selectFile(e.dataTransfer.files[0]);});
-fileInput.addEventListener('change',function(){if(this.files.length)selectFile(this.files[0]);});
-
-function selectFile(f){
-  selectedFile=f;
-  document.getElementById('fileName').textContent=f.name+' ('+formatSize(f.size)+')';
-  document.getElementById('hashFileBtn').disabled=false;
+function handleFile(file){
+  if(!file)return;
+  document.getElementById('fileName').textContent=file.name;
+  var size=file.size;
+  var units=['B','KB','MB','GB'];
+  var u=0;
+  while(size>=1024&&u<3){size/=1024;u++}
+  document.getElementById('fileSize').textContent='('+size.toFixed(u?1:0)+' '+units[u]+')';
+  document.getElementById('fileInfo').style.display='block';
+  var reader=new FileReader();
+  reader.onload=function(e){computeHashes(e.target.result)};
+  reader.readAsArrayBuffer(file);
 }
-function formatSize(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';if(b<1073741824)return(b/1048576).toFixed(1)+' MB';return(b/1073741824).toFixed(2)+' GB';}
 
-document.getElementById('hashFileBtn').addEventListener('click',async function(){
-  if(!selectedFile)return;
-  this.disabled=true;this.textContent='Generating...';
-  var pw=document.getElementById('progressWrap');pw.style.display='block';
-  var pf=document.getElementById('progressFill');var pt=document.getElementById('progressText');
-  try{
-    var r=await hashFile(selectedFile,function(p){
-      var pct=Math.round(p*100);
-      pf.style.width=pct+'%';pt.textContent=pct+'%';
-    });
-    currentHashes=r;showResults(r);
-  }catch(e){alert('Error: '+e.message);}
-  this.disabled=false;this.textContent='Generate Hashes';
-});
+dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.classList.add('dragover')});
+dropZone.addEventListener('dragleave',function(){dropZone.classList.remove('dragover')});
+dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])});
+fileInput.addEventListener('change',function(){if(fileInput.files.length)handleFile(fileInput.files[0])});
 
-function showResults(hashes){
-  var container=document.getElementById('results');
-  container.innerHTML='';
-  var algos=['MD5','SHA-1','SHA-256','SHA-512'];
-  algos.forEach(function(algo){
-    var card=document.createElement('div');card.className='result-card';
-    card.innerHTML='<div class="algo">'+algo+'</div><div class="hash">'+hashes[algo]+'</div><button class="copy-btn" aria-label="Copy '+algo+' hash">Copy</button>';
-    card.querySelector('.copy-btn').addEventListener('click',function(){
-      navigator.clipboard.writeText(hashes[algo]).then(function(){
-        var btn=card.querySelector('.copy-btn');btn.textContent='Copied!';btn.classList.add('copied');
-        setTimeout(function(){btn.textContent='Copy';btn.classList.remove('copied');},1500);
-      });
+// Mode switching
+function switchMode(mode){
+  currentMode=mode;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  if(mode==='text'){
+    document.querySelectorAll('.tab')[0].classList.add('active');
+    document.getElementById('textMode').style.display='';
+    document.getElementById('fileMode').style.display='none';
+    if(textInput.value.length>0)computeHashes(textInput.value);else clearHashes();
+  }else{
+    document.querySelectorAll('.tab')[1].classList.add('active');
+    document.getElementById('textMode').style.display='none';
+    document.getElementById('fileMode').style.display='';
+    clearHashes();
+  }
+}
+
+// Copy
+function copyHash(name){
+  var h=currentHashes[name];
+  if(!h)return;
+  navigator.clipboard.writeText(h).then(function(){
+    var btns=document.querySelectorAll('.copy-btn');
+    btns.forEach(function(b){
+      if(b.closest('.result-card').id==='card-'+name){
+        b.textContent='Copied!';b.classList.add('copied');
+        setTimeout(function(){b.textContent='Copy';b.classList.remove('copied')},1500);
+      }
     });
-    container.appendChild(card);
   });
-  document.getElementById('verifySection').style.display='block';
-  document.getElementById('verifyInput').value='';
-  document.getElementById('matchStatus').className='match-status';
-  document.getElementById('matchStatus').style.display='none';
 }
 
 // Verify
-document.getElementById('verifyInput').addEventListener('input',function(){
-  var expected=this.value.trim().toLowerCase();
-  var status=document.getElementById('matchStatus');
-  if(!expected||!currentHashes){status.style.display='none';return;}
-  var matched=null;
-  Object.keys(currentHashes).forEach(function(algo){
-    if(currentHashes[algo]===expected)matched=algo;
+var verifyInput=document.getElementById('verifyInput');
+verifyInput.addEventListener('input',doVerify);
+
+function doVerify(){
+  var v=verifyInput.value.trim().toLowerCase();
+  var vr=document.getElementById('verifyResult');
+  // Reset all cards
+  algos.forEach(function(a){document.getElementById('card-'+a.name).className='result-card'});
+  if(!v){vr.className='verify-result';vr.style.display='none';return}
+  var matched=false;
+  algos.forEach(function(a){
+    if(currentHashes[a.name]&&currentHashes[a.name]===v){
+      document.getElementById('card-'+a.name).classList.add('match');
+      matched=true;
+    }
   });
   if(matched){
-    status.className='match-status match';
-    status.innerHTML='&#10004; Match found! Matches '+matched+' hash.';
-    status.style.display='block';
-  }else{
-    status.className='match-status no-match';
-    status.innerHTML='&#10008; No match found. The hash does not match any generated value.';
-    status.style.display='block';
+    vr.textContent='\u2705 Hash matches!';
+    vr.className='verify-result match';
+    vr.style.display='block';
+  }else if(Object.keys(currentHashes).length>0){
+    vr.textContent='\u274c No matching hash found.';
+    vr.className='verify-result no-match';
+    vr.style.display='block';
   }
-});
+}
 </script>
-<!-- Pro Features Section -->
-<style>
-.pro-section{margin-top:32px;position:relative}
-.pro-section h2{text-align:center;font-size:1.3rem;margin-bottom:16px;color:var(--accent)}
-.pro-mock{position:relative;border-radius:var(--radius);overflow:hidden;cursor:pointer}
-.pro-mock-inner{filter:blur(3px);opacity:.7;pointer-events:none;padding:16px;background:var(--surface);border-radius:var(--radius)}
-.pro-mock-card{background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:10px}
-.pro-mock-card .algo{font-size:.8rem;color:var(--accent);font-weight:600;text-transform:uppercase;margin-bottom:4px}
-.pro-mock-card .hash{font-family:monospace;font-size:.82rem;color:var(--text2);word-break:break-all}
-.pro-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(26,26,46,.55);border-radius:var(--radius);z-index:2}
-.pro-lock-icon{font-size:2.8rem;margin-bottom:10px}
-.pro-lock-text{font-size:1.05rem;font-weight:600;color:#fff}
-.pro-lock-sub{font-size:.85rem;color:var(--text2);margin-top:4px}
-.pro-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:20px}
-.pro-modal-overlay.active{display:flex}
-.pro-modal{background:var(--surface);border-radius:16px;padding:32px;max-width:420px;width:100%;text-align:center;position:relative;border:1px solid rgba(233,69,96,.3);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.pro-modal h3{font-size:1.4rem;margin-bottom:6px;color:#fff}
-.pro-modal .price{font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0 18px}
-.pro-modal ul{text-align:left;list-style:none;margin-bottom:24px}
-.pro-modal ul li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.92rem;color:var(--text)}
-.pro-modal ul li::before{content:'✓ ';color:var(--green);font-weight:700}
-.pro-modal .btn-upgrade{display:block;width:100%;padding:14px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer;text-decoration:none;transition:opacity .2s;margin-bottom:10px}
-.pro-modal .btn-upgrade:hover{opacity:.9}
-.pro-modal .btn-later{background:none;border:none;color:var(--text2);font-size:.9rem;cursor:pointer;padding:8px;transition:color .2s}
-.pro-modal .btn-later:hover{color:var(--text)}
-</style>
-<div class="pro-section">
-  <h2>⚡ Pro Features</h2>
-  <div class="pro-mock" id="proMock">
-    <div class="pro-mock-inner">
-      <div class="pro-mock-card">
-        <div class="algo">HMAC-SHA256</div>
-        <div class="hash">a1b2c3d4e5f6...select secret key and algorithm for HMAC generation</div>
-      </div>
-      <div class="pro-mock-card">
-        <div class="algo">Batch File Hashing</div>
-        <div class="hash">📁 report.pdf — SHA-256: 9f86d0...  ✓ verified<br>📁 data.zip — SHA-256: 3c9909...  ✓ verified<br>📁 image.png — SHA-256: 2cf24d...  ✓ verified</div>
-      </div>
-      <div class="pro-mock-card">
-        <div class="algo">Checksum Report</div>
-        <div class="hash">📊 Export full checksum report as CSV/JSON with timestamps and file metadata</div>
-      </div>
-    </div>
-    <div class="pro-lock-overlay">
-      <div class="pro-lock-icon">🔒</div>
-      <div class="pro-lock-text">Unlock Pro Features</div>
-      <div class="pro-lock-sub">HMAC · Batch Hashing · Reports</div>
-    </div>
-  </div>
-</div>
-<div class="pro-modal-overlay" id="proModal">
-  <div class="pro-modal">
-    <h3>🔒 Hash Generator Pro</h3>
-    <div class="price">$9</div>
-    <ul>
-      <li>HMAC support (SHA-256, SHA-512, MD5)</li>
-      <li>Batch file hashing — process multiple files at once</li>
-      <li>Checksum report export (CSV / JSON)</li>
-      <li>File metadata & timestamps in reports</li>
-      <li>Priority support & lifetime updates</li>
-    </ul>
-    <a href="https://feifeicch.gumroad.com/l/ai-hash-generator-pro" target="_blank" class="btn-upgrade">Upgrade to Pro — $9</a>
-    <button class="btn-later" id="proModalClose">Maybe later</button>
-  </div>
-</div>
-<script>
-document.getElementById('proMock').addEventListener('click',function(){document.getElementById('proModal').classList.add('active');});
-document.getElementById('proModalClose').addEventListener('click',function(e){e.stopPropagation();document.getElementById('proModal').classList.remove('active');});
-document.getElementById('proModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('active');});
-</script>
-</div>
-<footer>AI Hash Generator &mdash; Free Online Tool</footer>
-<script src="https://alwingulla.com/88/tag.min.js" data-zone="130747" async data-cfasync="false"></script>
 </body>
 </html>
